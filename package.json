@@ -1,0 +1,12 @@
+{
+  "name": "xml-hound",
+  "version": "0.0.1",
+  "description": "XML search library",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "author": "Andres Meidla",
+  "license": "ISC",
+  "dependencies": {}
+}
