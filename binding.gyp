@@ -2,7 +2,7 @@
   "targets": [
     {
       "target_name": "xml-hound",
-      "sources": [ "wrap.cpp" ]
+      "sources": [ "src/wrap.cpp", "src/xmlhound.cpp" ]
     }
   ]
 }
