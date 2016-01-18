@@ -9,7 +9,7 @@
   "repository": "https://github.com/andresmeidla/xml-hound",
   "gypfile": true,
   "author": "Andres Meidla",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {},
   "devDependencies": {
     "chai": "^3.4.1"
