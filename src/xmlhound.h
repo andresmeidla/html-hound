@@ -14,7 +14,8 @@ struct Position
   Position(int start, int len) : start(start), len(len) {}
 };
 
-int GetElements(const std::string& xml, const std::string& tagStart, std::vector<Position>& tags);
+bool GetElements(const std::u32string& xml, const std::u32string& tagStart, std::vector<Position>& positions);
+bool GetElement(const std::u32string& xml, const std::u32string& tagStart, Position& pos);
 
 }
 

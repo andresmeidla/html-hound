@@ -1,6 +1,6 @@
 var hound = require("../index");
 var fs = require("fs");
-var xml = fs.readFileSync(__dirname + '/' +'./test.xml');
+var xml = fs.readFileSync(__dirname + '/' +'./test.xml', 'utf8');
 
 var testData  = `
 <div 1>
@@ -19,18 +19,29 @@ var testData  = `
 </div>
 `;
 
+var utf8Data = 'ñø÷<div>ñø÷<div class="heading">ñø÷asfsafasgaghaszhsd<div>ʥʯʳ</div>ʥʯʳ</div>ʥʯʳ</div>ʥʯʳ'
+
 var expect = require('chai').expect;
 describe('xml-hound', function() {
   describe('getElements()', function () {
     it('should return 42 headings', function () {
       var tagStart = '<div class="heading"';
       var ret = hound.getElements(xml.toString(), tagStart);
+      /*ret.forEach(function(item) {
+        console.log(xml.toString().substring(item.start, item.start + item.len));
+      });*/
       expect(ret.length).to.be.equal(42);
     });
     it('should return 1 heading', function () {
       var tagStart = '<div class="heading"';
       var ret = hound.getElements(testData.toString(), tagStart);
       expect(ret.length).to.be.equal(1);
+    });
+    it('should return 1 heading', function () {
+      var tagStart = '<span class="frontComments dataLink" data-href="http://majandus24.postimees.ee/3471987/kohtla';
+      var ret = hound.getElements(xml.toString(), tagStart);
+      expect(ret.length).to.be.equal(1);
+      expect(ret[0]).to.eql({ start: 38648, len: 191 });
     });
     it('should throw an exception', function () {
       var tagStart = 'div class="heading"';
@@ -76,6 +87,68 @@ describe('xml-hound', function() {
       var tagStart = '<div class="heading"';
       var ret = hound.getElements('blabla', tagStart);
       expect(ret.length).to.be.eql(0);
+    });
+  });
+  describe('getElement()', function () {
+    it('should find element', function () {
+      var tagStart = '<div class="heading"';
+      var ret = hound.getElement(testData.toString(), tagStart);
+      expect(ret).to.eql({ start: 53, len: 110 });
+    });
+    it('should find element from utf8 string', function () {
+      var tagStart = '<div class="heading"';
+      var ret = hound.getElement(utf8Data, tagStart);
+      expect(ret).to.eql({ start: 11, len: 65 });
+    });
+    it('should find element', function () {
+      var tagStart = '<div class="heading"';
+      var ret = hound.getElement(xml, tagStart);
+      expect(ret).to.eql({ start: 141000, len: 221 });
+    });
+    it('should throw an exception', function () {
+      var tagStart = 'div class="heading"';
+      try {
+        var ret = hound.getElement(xml.toString(), tagStart);
+        throw new Error('this shouldve thrown');
+      }
+      catch(err) {
+        console.log(err);
+      }
+    });
+    it('should throw an exception', function () {
+      var tagStart = '';
+      try {
+        var ret = hound.getElement(xml.toString(), tagStart);
+        throw new Error('this shouldve thrown');
+      }
+      catch(err) {
+        console.log(err);
+      }
+    });
+    it('should return no result', function () {
+      var tagStart = '<div class="heading"';
+      var ret = hound.getElement('', tagStart);
+      expect(ret).to.eql({ start: -1, len: -1 });
+    });
+    it('should not crash', function () {
+      var tagStart = '<div class="heading"';
+      var ret = hound.getElement(tagStart+tagStart+tagStart+tagStart+tagStart+tagStart+tagStart, tagStart);
+      expect(ret).to.eql({ start: 0, len: -1 });
+    });
+    it('should not crash', function () {
+      var tagStart = '<div class="heading"';
+      var ret = hound.getElement(tagStart+'asfafjqnohquoqwh9 89qwe9qw989', tagStart);
+      expect(ret).to.eql({ start: 0, len: -1 });
+    });
+    it('should not crash', function () {
+      var tagStart = '<div class="heading"';
+      var ret = hound.getElement(tagStart, tagStart);
+      expect(ret).to.eql({ start: 0, len: -1 });
+    });
+    it('should not crash', function () {
+      var tagStart = '<div class="heading"';
+      var ret = hound.getElement('blabla', tagStart);
+      expect(ret).to.eql({ start: -1, len: -1 });
     });
   });
 });

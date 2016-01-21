@@ -7,10 +7,12 @@
     "test": "mocha"
   },
   "repository": "https://github.com/andresmeidla/xml-hound",
-  "gypfile": true,
   "author": "Andres Meidla",
   "license": "ISC",
-  "dependencies": {},
+  "dependencies": {
+    "bindings": "^1.2.1",
+    "nan": "^2.2.0"
+  },
   "devDependencies": {
     "chai": "^3.4.1"
   }
