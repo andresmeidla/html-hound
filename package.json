@@ -8,7 +8,7 @@
   },
   "repository": "https://github.com/andresmeidla/xml-hound",
   "author": "Andres Meidla",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "bindings": "^1.2.1",
     "nan": "^2.2.0"
