@@ -2,10 +2,13 @@ var native = require('bindings')('html-hound');
 
 var HtmlHound = {
   getElements: function(html, tagStart) {
-    return JSON.parse(native.getElements(html, tagStart));
+    return native.getElements(html, tagStart);
   },
   getElement: function(html, tagStart) {
-    return JSON.parse(native.getElement(html, tagStart));
+    return native.getElement(html, tagStart);
+  },
+  parseLink: function(html) {
+    return native.parseLink(html);
   }
 };
 

@@ -19,7 +19,7 @@ var testData  = `
 </div>
 `;
 
-var utf8Data = 'ñø÷<div>ñø÷<div class="heading">ñø÷asfsafasgaghaszhsd<div>ʥʯʳ</div>ʥʯʳ</div>ʥʯʳ</div>ʥʯʳ'
+var utf8Data = 'ñø÷<div>ñø÷<div class="heading">ñø÷asfsaf<a href=\'http://blabla.ee\'>blabla</a>asgaghaszhsd<div>ʥʯʳ</div>ʥʯʳ</div>ʥʯʳ</div>ʥʯʳ'
 
 var expect = require('chai').expect;
 describe('xml-hound', function() {
@@ -98,7 +98,7 @@ describe('xml-hound', function() {
     it('should find element from utf8 string', function () {
       var tagStart = '<div class="heading"';
       var ret = hound.getElement(utf8Data, tagStart);
-      expect(ret).to.eql({ start: 11, len: 65 });
+      expect(ret).to.eql({ start: 11, len: 102 });
     });
     it('should find element', function () {
       var tagStart = '<div class="heading"';
@@ -149,6 +149,30 @@ describe('xml-hound', function() {
       var tagStart = '<div class="heading"';
       var ret = hound.getElement('blabla', tagStart);
       expect(ret).to.eql({ start: -1, len: -1 });
+    });
+  });
+  describe('parseLink()', function () {
+    it('should parse link', function () {
+      var tagStart = '<div class="heading"';
+      var ret = hound.getElement(xml.toString(), tagStart);
+      expect(ret).to.eql({ start: 141000, len: 221 });
+      var div = xml.substr(ret.start, ret.len);
+      ret = hound.parseLink(div);
+      console.log(ret);
+      expect(ret).to.exist;
+    });
+    it('should parse link', function () {
+      var tagStart = '<div class="heading"';
+      var ret = hound.getElement(utf8Data.toString(), tagStart);
+      expect(ret).to.eql({ start: 11, len: 102 });
+      var div = utf8Data.substr(ret.start, ret.len);
+      ret = hound.parseLink(div);
+      console.log(ret);
+      expect(ret).to.exist;
+    });
+    it('should not find a link', function () {
+      var ret = hound.parseLink(testData);
+      expect(ret).to.not.exist;
     });
   });
 });

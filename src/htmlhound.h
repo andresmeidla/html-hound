@@ -6,16 +6,24 @@
 
 namespace HtmlHound {
 
-struct Position
-{
+struct Position {
   int start;
   int len;
-  Position() {}
+  Position(): start(-1), len(-1) {}
   Position(int start, int len) : start(start), len(len) {}
 };
 
-bool GetElements(const std::u32string& html, const std::u32string& tagStart, std::vector<Position>& positions);
-bool GetElement(const std::u32string& html, const std::u32string& tagStart, Position& pos);
+struct Link {
+  Position pos;
+  std::u32string url;
+  std::u32string text;
+  Link() {}
+  Link(const std::u32string& url, const std::u32string& text): url(url), text(text) {}
+};
+
+bool getElements(const std::u32string& html, const std::u32string& tagStart, std::vector<Position>& positions);
+bool getElement(const std::u32string& html, const std::u32string& tagStart, Position& pos);
+bool parseLink(const std::u32string& html, Link& link);
 
 }
 

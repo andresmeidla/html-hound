@@ -27,7 +27,7 @@ struct TagItems {
   }
 };
 
-int FindTags(const std::u32string& html, std::map<std::u32string, std::vector<Position> >& tags) {
+int findTags(const std::u32string& html, std::map<std::u32string, std::vector<Position> >& tags) {
   size_t index = 0;
   size_t htmlLen = html.length();
   while((index = html.find(U"<", index)) != std::u32string::npos) {
@@ -47,7 +47,7 @@ int FindTags(const std::u32string& html, std::map<std::u32string, std::vector<Po
 /*
   Finds all the tags which start with the supllied tag from the supplied html.
 */
-bool GetElements(const std::u32string& html, const std::u32string& tagStartWithAttrs, std::vector<Position>& positions)
+bool getElements(const std::u32string& html, const std::u32string& tagStartWithAttrs, std::vector<Position>& positions)
 {
   size_t tagEndLen;
 
@@ -63,7 +63,7 @@ bool GetElements(const std::u32string& html, const std::u32string& tagStartWithA
   tagLocations[tagItems.tagStart] = std::vector<Position>();
   tagLocations[tagItems.tagEnd] = std::vector<Position>();
   // search all occurrences of tagStartWithAttrs, tagStart and tagEnd
-  FindTags(html, tagLocations);
+  findTags(html, tagLocations);
   std::vector<Position>::iterator endItr = tagLocations[tagItems.tagEnd].begin();
   std::vector<Position>::iterator startItr = tagLocations[tagItems.tagStart].begin();
   if(startItr == tagLocations[tagItems.tagStart].end())
@@ -115,7 +115,7 @@ bool GetElements(const std::u32string& html, const std::u32string& tagStartWithA
 /*
  * Find the first
  */
-bool GetElement(const std::u32string& html, const std::u32string& tagStartWithAttrs, Position& pos) {
+bool getElement(const std::u32string& html, const std::u32string& tagStartWithAttrs, Position& pos) {
   size_t index;
   pos.start = -1;
   pos.len = -1;
@@ -161,6 +161,49 @@ bool GetElement(const std::u32string& html, const std::u32string& tagStartWithAt
   }
 
   return true;
+}
+
+bool parseLink(const std::u32string& html, Link& link) {
+  size_t index, tmp;
+  bool ret = false;
+  Position pos;
+  static const std::u32string LINK_START = std::u32string(U"<a");
+  static const std::u32string LINK_END = std::u32string(U"</a>");
+  static const std::u32string LINK_HREF = std::u32string(U"href=");
+  static const char32_t GT = U'>';
+  char32_t quoteChar;
+
+  // find <a
+  if((index = html.find(LINK_START)) != std::u32string::npos) {
+    pos.start = index;
+    index += LINK_START.length();
+    // find href=
+    if((index = html.find(LINK_HREF, index)) != std::u32string::npos) {
+      index += LINK_HREF.length();
+      // advance index by ine (quote char)
+      quoteChar = html[index];
+      ++index;
+      tmp = index;
+      // find the end of the quotation
+      if((index = html.find(quoteChar, index)) != std::u32string::npos) {
+        link.url = html.substr(tmp, index - tmp);
+        // find >
+        if((index = html.find(GT, index)) != std::u32string::npos) {
+          ++index;
+          tmp = index;
+          // find </a>
+          if((index = html.find(LINK_END, index)) != std::u32string::npos) {
+            pos.len = index + LINK_END.length() - pos.start;
+            link.text = html.substr(tmp, index - tmp);
+            link.pos = pos;
+            ret = true;
+          }
+        }
+      }
+    }
+  }
+
+  return ret;
 }
 
 } // namespace

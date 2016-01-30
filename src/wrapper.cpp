@@ -7,7 +7,12 @@
 
 std::u32string TO_32BIT(const std::string &s)
 {
-    return std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t>().from_bytes(s);
+  return std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t>().from_bytes(s);
+}
+
+std::string TO_8BIT(const std::u32string& str)
+{
+  return std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t>().to_bytes(str);
 }
 
 NAN_METHOD(getElements) {
@@ -24,19 +29,22 @@ NAN_METHOD(getElements) {
   std::u32string html = TO_32BIT(std::string(*v8::String::Utf8Value(info[0]->ToString())));
   std::u32string startTag = TO_32BIT(std::string(*v8::String::Utf8Value(info[1]->ToString())));
   std::vector<HtmlHound::Position> positions;
-  bool ret = HtmlHound::GetElements(html, startTag, positions);
+  bool ret = HtmlHound::getElements(html, startTag, positions);
   if(!ret) {
-    Nan::ThrowError((std::string("getElements failed with ") + std::to_string(ret)).c_str());
+    Nan::ThrowError("getElements failed with ");
     return;
   }
+
+  // create array to be returned
+  v8::Local<v8::Array> elements = Nan::New<v8::Array>();
   std::string json;
   for (size_t i = 0; i < positions.size(); i++) {
-    json += "{\"start\": " + std::to_string(positions[i].start) + ", \"len\": " + std::to_string(positions[i].len) + "}";
-    if(i + 1 < positions.size())
-      json += ',';
+    v8::Local<v8::Object> obj = Nan::New<v8::Object>();
+    obj->Set(Nan::New<v8::String>("start").ToLocalChecked(), Nan::New<v8::Int32>(positions[i].start));
+    obj->Set(Nan::New<v8::String>("len").ToLocalChecked(), Nan::New<v8::Int32>(positions[i].len));
+    Nan::Set(elements, i, obj);
   }
-  json = "[" + json + "]";
-  info.GetReturnValue().Set(Nan::New(json.c_str()).ToLocalChecked());
+  info.GetReturnValue().Set(elements);
 }
 
 NAN_METHOD(getElement) {
@@ -55,18 +63,40 @@ NAN_METHOD(getElement) {
   v8::String::Utf8Value tagV8(info[1]);
   std::u32string startTag = TO_32BIT(std::string(*tagV8));
   HtmlHound::Position position;
-  bool ret = HtmlHound::GetElement(html, startTag, position);
+  bool ret = HtmlHound::getElement(html, startTag, position);
   if(!ret) {
-    Nan::ThrowError((std::string("getElement failed with ") + std::to_string(ret)).c_str());
+    Nan::ThrowError("getElement failed");
     return;
   }
-  std::string json = std::string("{\"start\": ") + std::to_string(position.start) + ", \"len\": " + std::to_string(position.len) + "}";
-  info.GetReturnValue().Set(Nan::New(json.c_str()).ToLocalChecked());
+
+  // create return object
+  v8::Local<v8::Object> obj = Nan::New<v8::Object>();
+  obj->Set(Nan::New<v8::String>("start").ToLocalChecked(), Nan::New<v8::Int32>(position.start));
+  obj->Set(Nan::New<v8::String>("len").ToLocalChecked(), Nan::New<v8::Int32>(position.len));
+  info.GetReturnValue().Set(obj);
+}
+
+NAN_METHOD(parseLink) {
+  if (info.Length() < 1) {
+    Nan::ThrowError("Wrong number of arguments");
+    return;
+  }
+
+  // create return Object
+  v8::Local<v8::Object> retObj = Nan::New<v8::Object>();
+  std::u32string html = TO_32BIT(std::string(*v8::String::Utf8Value(info[0]->ToString())));
+  HtmlHound::Link link;
+  if(HtmlHound::parseLink(html, link)) {
+    retObj->Set(Nan::New<v8::String>("url").ToLocalChecked(), Nan::New<v8::String>(TO_8BIT(link.url).c_str()).ToLocalChecked());
+    retObj->Set(Nan::New<v8::String>("text").ToLocalChecked(), Nan::New<v8::String>(TO_8BIT(link.text).c_str()).ToLocalChecked());
+    info.GetReturnValue().Set(retObj);
+  }
 }
 
 NAN_MODULE_INIT(init) {
   Nan::Set(target, Nan::New<v8::String>("getElements").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(getElements)->GetFunction());
   Nan::Set(target, Nan::New<v8::String>("getElement").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(getElement)->GetFunction());
+  Nan::Set(target, Nan::New<v8::String>("parseLink").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(parseLink)->GetFunction());
 }
 
 NODE_MODULE(htmlhound, init)
