@@ -1,12 +1,12 @@
-var native = require('bindings')('xml-hound');
+var native = require('bindings')('html-hound');
 
-var XmlHound = {
-  getElements: function(xml, tagStart) {
-    return JSON.parse(native.getElements(xml, tagStart));
+var HtmlHound = {
+  getElements: function(html, tagStart) {
+    return JSON.parse(native.getElements(html, tagStart));
   },
-  getElement: function(xml, tagStart) {
-    return JSON.parse(native.getElement(xml, tagStart));
+  getElement: function(html, tagStart) {
+    return JSON.parse(native.getElement(html, tagStart));
   }
 };
 
-module.exports = XmlHound;
+module.exports = HtmlHound;

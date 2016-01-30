@@ -4,9 +4,9 @@
 #include <string.h>
 #include <locale>
 #include <codecvt>
-#include "xmlhound.h"
+#include "htmlhound.h"
 
-namespace XmlHound {
+namespace HtmlHound {
 
 struct TagItems {
   std::u32string tagStartWithAttrs;
@@ -27,14 +27,14 @@ struct TagItems {
   }
 };
 
-int FindTags(const std::u32string& xml, std::map<std::u32string, std::vector<Position> >& tags) {
+int FindTags(const std::u32string& html, std::map<std::u32string, std::vector<Position> >& tags) {
   size_t index = 0;
-  size_t xmlLen = xml.length();
-  while((index = xml.find(U"<", index)) != std::u32string::npos) {
+  size_t htmlLen = html.length();
+  while((index = html.find(U"<", index)) != std::u32string::npos) {
     for(std::map<std::u32string, std::vector<Position> >::iterator itr = tags.begin(); itr != tags.end(); ++itr) {
       const std::u32string& str = itr->first;
-      if(index + str.length() <= xmlLen) {
-        if(memcmp(xml.c_str() + index, str.c_str(), str.length()*sizeof(str[0])) == 0) {
+      if(index + str.length() <= htmlLen) {
+        if(memcmp(html.c_str() + index, str.c_str(), str.length()*sizeof(str[0])) == 0) {
           itr->second.push_back(Position(index, 0));
         }
       }
@@ -45,9 +45,9 @@ int FindTags(const std::u32string& xml, std::map<std::u32string, std::vector<Pos
 }
 
 /*
-  Finds all the tags which start with the supllied tag from the supplied xml.
+  Finds all the tags which start with the supllied tag from the supplied html.
 */
-bool GetElements(const std::u32string& xml, const std::u32string& tagStartWithAttrs, std::vector<Position>& positions)
+bool GetElements(const std::u32string& html, const std::u32string& tagStartWithAttrs, std::vector<Position>& positions)
 {
   size_t tagEndLen;
 
@@ -63,7 +63,7 @@ bool GetElements(const std::u32string& xml, const std::u32string& tagStartWithAt
   tagLocations[tagItems.tagStart] = std::vector<Position>();
   tagLocations[tagItems.tagEnd] = std::vector<Position>();
   // search all occurrences of tagStartWithAttrs, tagStart and tagEnd
-  FindTags(xml, tagLocations);
+  FindTags(html, tagLocations);
   std::vector<Position>::iterator endItr = tagLocations[tagItems.tagEnd].begin();
   std::vector<Position>::iterator startItr = tagLocations[tagItems.tagStart].begin();
   if(startItr == tagLocations[tagItems.tagStart].end())
@@ -115,7 +115,7 @@ bool GetElements(const std::u32string& xml, const std::u32string& tagStartWithAt
 /*
  * Find the first
  */
-bool GetElement(const std::u32string& xml, const std::u32string& tagStartWithAttrs, Position& pos) {
+bool GetElement(const std::u32string& html, const std::u32string& tagStartWithAttrs, Position& pos) {
   size_t index;
   pos.start = -1;
   pos.len = -1;
@@ -128,23 +128,23 @@ bool GetElement(const std::u32string& xml, const std::u32string& tagStartWithAtt
   std::stack<int> stack;
   size_t tagEndLen = tagItems.tagEnd.length();
   size_t tagStartLen = tagItems.tagStart.length();
-  size_t xmlLen = xml.length();
+  size_t htmlLen = html.length();
 
   // search for our tagStartWithAttrs
-  if((index = xml.find(tagStartWithAttrs)) != std::u32string::npos) {
+  if((index = html.find(tagStartWithAttrs)) != std::u32string::npos) {
     pos.start = index;
     index += tagStartWithAttrs.length();
-    while((index = xml.find(U"<", index)) != std::u32string::npos) {
+    while((index = html.find(U"<", index)) != std::u32string::npos) {
       // check if the tag is a start tag
-      if(index + tagStartLen <= xmlLen) {
-        if(memcmp(xml.c_str() + index, tagItems.tagStart.c_str(), tagStartLen*sizeof(tagItems.tagStart[0])) == 0) {
+      if(index + tagStartLen <= htmlLen) {
+        if(memcmp(html.c_str() + index, tagItems.tagStart.c_str(), tagStartLen*sizeof(tagItems.tagStart[0])) == 0) {
           // an embedded start tag pushed to the stack
           stack.push(index);
         }
       }
       // check if the tag is an end tag
-      if(index + tagEndLen <= xmlLen) {
-        if(memcmp(xml.c_str() + index, tagItems.tagEnd.c_str(), tagEndLen*sizeof(tagItems.tagEnd[0])) == 0) {
+      if(index + tagEndLen <= htmlLen) {
+        if(memcmp(html.c_str() + index, tagItems.tagEnd.c_str(), tagEndLen*sizeof(tagItems.tagEnd[0])) == 0) {
           if(stack.size()) {
             // close tag for the last embedded start tag
             stack.pop();

@@ -3,7 +3,7 @@
 #include <string.h>
 #include <locale>
 #include <codecvt>
-#include "xmlhound.h"
+#include "htmlhound.h"
 
 std::u32string TO_32BIT(const std::string &s)
 {
@@ -21,10 +21,10 @@ NAN_METHOD(getElements) {
     return;
   }
 
-  std::u32string xml = TO_32BIT(std::string(*v8::String::Utf8Value(info[0]->ToString())));
+  std::u32string html = TO_32BIT(std::string(*v8::String::Utf8Value(info[0]->ToString())));
   std::u32string startTag = TO_32BIT(std::string(*v8::String::Utf8Value(info[1]->ToString())));
-  std::vector<XmlHound::Position> positions;
-  bool ret = XmlHound::GetElements(xml, startTag, positions);
+  std::vector<HtmlHound::Position> positions;
+  bool ret = HtmlHound::GetElements(html, startTag, positions);
   if(!ret) {
     Nan::ThrowError((std::string("getElements failed with ") + std::to_string(ret)).c_str());
     return;
@@ -49,13 +49,13 @@ NAN_METHOD(getElement) {
     Nan::ThrowTypeError("Wrong argument types");
     return;
   }
-  v8::String::Utf8Value xmlV8(info[0]);
-  const char* bla = *xmlV8;
-  std::u32string xml = TO_32BIT(std::string(bla));
+  v8::String::Utf8Value htmlV8(info[0]);
+  const char* bla = *htmlV8;
+  std::u32string html = TO_32BIT(std::string(bla));
   v8::String::Utf8Value tagV8(info[1]);
   std::u32string startTag = TO_32BIT(std::string(*tagV8));
-  XmlHound::Position position;
-  bool ret = XmlHound::GetElement(xml, startTag, position);
+  HtmlHound::Position position;
+  bool ret = HtmlHound::GetElement(html, startTag, position);
   if(!ret) {
     Nan::ThrowError((std::string("getElement failed with ") + std::to_string(ret)).c_str());
     return;
@@ -69,4 +69,4 @@ NAN_MODULE_INIT(init) {
   Nan::Set(target, Nan::New<v8::String>("getElement").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(getElement)->GetFunction());
 }
 
-NODE_MODULE(xmlhound, init)
+NODE_MODULE(htmlhound, init)

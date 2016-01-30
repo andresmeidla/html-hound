@@ -1,8 +1,8 @@
 {
   "targets": [
     {
-      "target_name": "xml-hound",
-      "sources": [ "src/wrap.cpp", "src/xmlhound.cpp" ],
+      "target_name": "html-hound",
+      "sources": [ "src/wrapper.cpp", "src/htmlhound.cpp" ],
       "include_dirs" : [
         "<!(node -e \"require('nan')\")"
        ]

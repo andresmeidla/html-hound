@@ -1,12 +1,12 @@
 {
-  "name": "xml-hound",
+  "name": "html-hound",
   "version": "0.0.1",
-  "description": "XML search library",
+  "description": "html search library",
   "main": "index.js",
   "scripts": {
     "test": "mocha"
   },
-  "repository": "https://github.com/andresmeidla/xml-hound",
+  "repository": "https://github.com/andresmeidla/html-hound",
   "author": "Andres Meidla",
   "license": "MIT",
   "dependencies": {
