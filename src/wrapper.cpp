@@ -42,6 +42,9 @@ NAN_METHOD(getElements) {
     v8::Local<v8::Object> obj = Nan::New<v8::Object>();
     obj->Set(Nan::New<v8::String>("start").ToLocalChecked(), Nan::New<v8::Int32>(positions[i].start));
     obj->Set(Nan::New<v8::String>("len").ToLocalChecked(), Nan::New<v8::Int32>(positions[i].len));
+    if(positions[i].start > -1 && positions[i].len > -1 ) {
+      obj->Set(Nan::New<v8::String>("text").ToLocalChecked(), Nan::New<v8::String>(TO_8BIT(html.substr(positions[i].start, positions[i].len)).c_str()).ToLocalChecked());
+    }
     Nan::Set(elements, i, obj);
   }
   info.GetReturnValue().Set(elements);
@@ -68,11 +71,13 @@ NAN_METHOD(getElement) {
     Nan::ThrowError("getElement failed");
     return;
   }
-
   // create return object
   v8::Local<v8::Object> obj = Nan::New<v8::Object>();
   obj->Set(Nan::New<v8::String>("start").ToLocalChecked(), Nan::New<v8::Int32>(position.start));
   obj->Set(Nan::New<v8::String>("len").ToLocalChecked(), Nan::New<v8::Int32>(position.len));
+  if(position.start > -1 && position.len > -1 ) {
+    obj->Set(Nan::New<v8::String>("text").ToLocalChecked(), Nan::New<v8::String>(TO_8BIT(html.substr(position.start, position.len)).c_str()).ToLocalChecked());
+  }
   info.GetReturnValue().Set(obj);
 }
 

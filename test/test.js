@@ -41,7 +41,8 @@ describe('xml-hound', function() {
       var tagStart = '<span class="frontComments dataLink" data-href="http://majandus24.postimees.ee/3471987/kohtla';
       var ret = hound.getElements(xml.toString(), tagStart);
       expect(ret.length).to.be.equal(1);
-      expect(ret[0]).to.eql({ start: 38648, len: 191 });
+      expect(ret[0].start).to.equal(38648);
+      expect(ret[0].len).to.equal(191);
     });
     it('should throw an exception', function () {
       var tagStart = 'div class="heading"';
@@ -93,17 +94,20 @@ describe('xml-hound', function() {
     it('should find element', function () {
       var tagStart = '<div class="heading"';
       var ret = hound.getElement(testData.toString(), tagStart);
-      expect(ret).to.eql({ start: 53, len: 110 });
+      expect(ret.start).to.equal(53);
+      expect(ret.len).to.equal(110);
     });
     it('should find element from utf8 string', function () {
       var tagStart = '<div class="heading"';
       var ret = hound.getElement(utf8Data, tagStart);
-      expect(ret).to.eql({ start: 11, len: 102 });
+      expect(ret.start).to.equal(11);
+      expect(ret.len).to.equal(102);
     });
     it('should find element', function () {
       var tagStart = '<div class="heading"';
       var ret = hound.getElement(xml, tagStart);
-      expect(ret).to.eql({ start: 141000, len: 221 });
+      expect(ret.start).to.equal(141000);
+      expect(ret.len).to.equal(221);
     });
     it('should throw an exception', function () {
       var tagStart = 'div class="heading"';
@@ -128,34 +132,40 @@ describe('xml-hound', function() {
     it('should return no result', function () {
       var tagStart = '<div class="heading"';
       var ret = hound.getElement('', tagStart);
-      expect(ret).to.eql({ start: -1, len: -1 });
+      expect(ret.start).to.equal(-1);
+      expect(ret.len).to.equal(-1);
     });
     it('should not crash', function () {
       var tagStart = '<div class="heading"';
       var ret = hound.getElement(tagStart+tagStart+tagStart+tagStart+tagStart+tagStart+tagStart, tagStart);
-      expect(ret).to.eql({ start: 0, len: -1 });
+      expect(ret.start).to.equal(0);
+      expect(ret.len).to.equal(-1);
     });
     it('should not crash', function () {
       var tagStart = '<div class="heading"';
       var ret = hound.getElement(tagStart+'asfafjqnohquoqwh9 89qwe9qw989', tagStart);
-      expect(ret).to.eql({ start: 0, len: -1 });
+      expect(ret.start).to.equal(0);
+      expect(ret.len).to.equal(-1);
     });
     it('should not crash', function () {
       var tagStart = '<div class="heading"';
       var ret = hound.getElement(tagStart, tagStart);
-      expect(ret).to.eql({ start: 0, len: -1 });
+      expect(ret.start).to.equal(0);
+      expect(ret.len).to.equal(-1);
     });
     it('should not crash', function () {
       var tagStart = '<div class="heading"';
       var ret = hound.getElement('blabla', tagStart);
-      expect(ret).to.eql({ start: -1, len: -1 });
+      expect(ret.start).to.equal(-1);
+      expect(ret.len).to.equal(-1);
     });
   });
   describe('parseLink()', function () {
     it('should parse link', function () {
       var tagStart = '<div class="heading"';
       var ret = hound.getElement(xml.toString(), tagStart);
-      expect(ret).to.eql({ start: 141000, len: 221 });
+      expect(ret.start).to.equal(141000);
+      expect(ret.len).to.equal(221);
       var div = xml.substr(ret.start, ret.len);
       ret = hound.parseLink(div);
       console.log(ret);
@@ -164,7 +174,8 @@ describe('xml-hound', function() {
     it('should parse link', function () {
       var tagStart = '<div class="heading"';
       var ret = hound.getElement(utf8Data.toString(), tagStart);
-      expect(ret).to.eql({ start: 11, len: 102 });
+      expect(ret.start).to.equal(11);
+      expect(ret.len).to.equal(102);
       var div = utf8Data.substr(ret.start, ret.len);
       ret = hound.parseLink(div);
       console.log(ret);
